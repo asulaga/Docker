@@ -1,0 +1,47 @@
+version: "3.8"
+services:
+  mongodb:
+    image: "mongo"
+    volumes:
+      - data:/data/db
+   # environment:
+      #MONGO_INITDB_ROOT_USERNAME: ulaga
+     # MONGO_INITDB_ROOT_PASSWORD: ulaga123 
+
+    env_file: 
+      - ./env/mongo.env
+    
+  backend: 
+    build: ./backend
+  # build:
+  #   context: ./backend
+  #   dockerfile: Dockerfile
+  # args:
+  #  some-arg: 1
+    ports:
+     - "80:80"
+    volumes:
+      - logs:/app/logs   #name volume
+      - ./backend:/app    #this is bind volumes, no need spesify in the volumes location
+      - /app/node_modules  # ananomouse volume no need spesify in the volumes location
+    env_file:
+      - ./env/backend.env
+    depends_on:
+      - mongodb  
+      
+  frontend:
+    build: ./frontend 
+    ports:
+    - "3000:3000"
+    volumes:
+      - ./frontend/src:/app/src  
+    stdin_open: true # this allows input connections
+    tty: true     #attaching the terminals
+    depends_on:
+      - backend     
+
+
+
+volumes:   # (name volumes always mention in the services line( same indentations))
+  data:  
+  logs:
